@@ -56,5 +56,6 @@ Através da otimização do hiperparâmetro `contamination`, foi possível encon
 ├── deteccao_de_fraudes.ipynb   # Notebook principal com todo o desenvolvimento
 ├── isolation_forest_model.joblib # Modelo final treinado e salvo
 ├── creditcard.csv              # Dataset (deve ser baixado)
+├── requirements.txt            # Lista de dependências do projeto
 └── README.md                   # Este arquivo de documentação
 ```
