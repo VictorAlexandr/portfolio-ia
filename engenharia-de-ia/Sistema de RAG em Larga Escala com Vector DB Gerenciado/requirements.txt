@@ -1,0 +1,17 @@
+# Core de IA e RAG
+langchain
+langchain-community
+langchain-google-genai  # <--- TROCAMOS a langchain-openai por esta
+pinecone
+sentence-transformers   # <--- Vamos manter por enquanto como opção de embedding
+wikipedia
+tqdm
+langchain-pinecone      
+langchain-huggingface  
+
+# API e Servidor
+fastapi
+uvicorn[standard]
+
+# Utilitários
+python-dotenv

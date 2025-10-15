@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# IDE specific files
+# .vscode/ # Comentado para manter suas configurações de Codespaces versionadas se desejar
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*
