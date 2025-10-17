@@ -1,15 +1,13 @@
-name: CI - Build and Push Docker Image
+name: CI - Deploy Infrastructure to AWS
 
 on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+  workflow_dispatch: # Permite que a gente acione este workflow manualmente
 
 jobs:
-  build-and-push:
+  deploy-infra:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+      id-token: write   # Necessário para autenticação segura com a AWS (OIDC)
       contents: read
 
     steps:
@@ -22,17 +20,20 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: rag-large-scale-api
-          IMAGE_TAG: latest
+      - name: Terraform Init
+        id: init
+        # Usa -chdir para dizer ao Terraform para rodar dentro da nossa pasta de projeto
+        run: terraform -chdir=./engenharia-de-ia/Sistema\ de\ RAG\ em\ Larga\ Escala\ com\ Vector\ DB\ Gerenciado/terraform init
+
+      - name: Terraform Apply
+        id: apply
+        # Roda o apply, com -auto-approve para não pedir confirmação,
+        # e passa os segredos do GitHub como variáveis (-var) para o Terraform.
         run: |
-          cd "engenharia-de-ia/Sistema de RAG em Larga Escala com Vector DB Gerenciado"
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          terraform -chdir=./engenharia-de-ia/Sistema\ de\ RAG\ em\ Larga\ Escala\ com\ Vector\ DB\ Gerenciado/terraform apply -auto-approve \
+          -var="google_api_key=${{ secrets.GOOGLE_API_KEY }}" \
+          -var="pinecone_api_key=${{ secrets.PINECONE_API_KEY }}" \
+          -var="pinecone_host=${{ secrets.PINECONE_HOST }}"

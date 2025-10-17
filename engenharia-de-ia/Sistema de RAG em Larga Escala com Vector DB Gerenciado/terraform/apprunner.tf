@@ -13,14 +13,13 @@ resource "aws_apprunner_service" "api_service" {
       image_configuration {
         port = "8000"
 
-        # --- LOCAL CORRETO PARA AS VARIÁVEIS DE AMBIENTE ---
-        # As variáveis são parte da configuração da imagem que será executada.
+        # --- MUDANÇA AQUI: Usa as variáveis recebidas do workflow ---
         runtime_environment_variables = {
-          GOOGLE_API_KEY   = "arn:aws:secretsmanager:us-east-1:590183739982:secret:rag/google-api-key-3yjq6A"
-          PINECONE_API_KEY = "arn:aws:secretsmanager:us-east-1:590183739982:secret:rag/pinecone-api-key-ufMUkQ"
-          PINECONE_HOST    = "arn:aws:secretsmanager:us-east-1:590183739982:secret:rag/pinecone-host-KHTHpU"
+          GOOGLE_API_KEY   = var.google_api_key
+          PINECONE_API_KEY = var.pinecone_api_key
+          PINECONE_HOST    = var.pinecone_host
         }
-        # --------------------------------------------------------
+        # -----------------------------------------------------------
       }
     }
     auto_deployments_enabled = true
