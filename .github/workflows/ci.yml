@@ -2,14 +2,14 @@ name: CI - Build and Push Docker Image
 
 on:
   push:
-    branches: [ "main" ] # Aciona sempre que houver um push na branch main
-  workflow_dispatch: # Permite acionar manualmente também
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write   # Necessário para autenticação OIDC
+      id-token: write
       contents: read
 
     steps:
@@ -30,8 +30,9 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: rag-large-scale-api # Deve ser o mesmo nome da variável no Terraform
+          ECR_REPOSITORY: rag-large-scale-api
           IMAGE_TAG: latest
         run: |
+          cd "engenharia-de-ia/Sistema de RAG em Larga Escala com Vector DB Gerenciado"
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
