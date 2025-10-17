@@ -28,13 +28,11 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
-        # --- ADICIONE ESTA SEÇÃO ---
-        working-directory: engenharia-de-ia/Sistema de RAG em Larga Escala com Vector DB Gerenciado
-        # ---------------------------
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: rag-large-scale-api
           IMAGE_TAG: latest
         run: |
+          cd "engenharia-de-ia/Sistema de RAG em Larga Escala com Vector DB Gerenciado"
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
