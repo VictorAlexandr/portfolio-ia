@@ -18,6 +18,22 @@ load_dotenv()
 
 def create_rag_chain():
     try:
+        # --- LOGS DE DEPURAÇÃO PARA VERIFICAR AS VARIÁVEIS DE AMBIENTE ---
+        google_key = os.getenv("GOOGLE_API_KEY")
+        pinecone_key = os.getenv("PINECONE_API_KEY")
+        pinecone_host = os.getenv("PINECONE_HOST")
+
+        logging.info(f"--- CHECKING ENVIRONMENT VARIABLES ---")
+        logging.info(f"Google Key Loaded: {'Exists' if google_key else 'NOT FOUND'}")
+        logging.info(f"Pinecone Host Loaded: {'Exists' if pinecone_host else 'NOT FOUND'}")
+        
+        if pinecone_key:
+            logging.info(f"Pinecone Key Loaded: Starts with '{pinecone_key[:5]}', ends with '{pinecone_key[-5:]}'")
+        else:
+            logging.info(f"Pinecone Key Loaded: NOT FOUND")
+        logging.info(f"------------------------------------")
+        # -----------------------------------------------------------------
+
         # Configurar o Retriever
         logging.info("Carregando modelo de embedding via HuggingFaceEmbeddings...")
         embeddings = HuggingFaceEmbeddings(
@@ -30,8 +46,7 @@ def create_rag_chain():
         logging.info("Conectando ao Pinecone Vector Store...")
         vector_store = PineconeVectorStore.from_existing_index(
             index_name=index_name,
-            embedding=embeddings,
-            text_key='text'
+            embedding=embeddings
         )
         
         retriever = vector_store.as_retriever(search_kwargs={"k": 3})
@@ -40,7 +55,7 @@ def create_rag_chain():
         # Configurar o LLM (Gemini)
         logging.info("Configurando o LLM (Google Gemini)...")
         llm = ChatGoogleGenerativeAI(
-            model="gemini-pro-latest", # <-- A CORREÇÃO DEFINITIVA USANDO SEU MODELO
+            model="gemini-pro-latest",
             temperature=0.3,
             convert_system_message_to_human=True
         )
@@ -72,5 +87,6 @@ def create_rag_chain():
         return rag_chain
 
     except Exception as e:
+        # Adicionado exc_info=True para imprimir o traceback completo do erro no log
         logging.error(f"Erro ao criar a pipeline RAG: {e}", exc_info=True)
         return None
