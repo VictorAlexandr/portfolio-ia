@@ -29,7 +29,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         # --- ADICIONE ESTA SEÇÃO ---
-        working-directory: /workspaces/portfolio-ia/engenharia-de-ia/Sistema de RAG em Larga Escala com Vector DB Gerenciado
+        working-directory: engenharia-de-ia/Sistema de RAG em Larga Escala com Vector DB Gerenciado
         # ---------------------------
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
