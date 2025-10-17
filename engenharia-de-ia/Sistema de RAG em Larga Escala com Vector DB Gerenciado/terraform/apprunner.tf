@@ -16,9 +16,9 @@ resource "aws_apprunner_service" "api_service" {
         # --- LOCAL CORRETO PARA AS VARIÁVEIS DE AMBIENTE ---
         # As variáveis são parte da configuração da imagem que será executada.
         runtime_environment_variables = {
-          GOOGLE_API_KEY   = "arn:aws:secretsmanager:us-east-1:590183739982:secret:rag-large-scale/api-keys-hwlZYX"
-          PINECONE_API_KEY = "arn:aws:secretsmanager:us-east-1:590183739982:secret:rag-large-scale/api-keys-hwlZYX"
-          PINECONE_HOST    = "arn:aws:secretsmanager:us-east-1:590183739982:secret:rag-large-scale/api-keys-hwlZYX"
+          GOOGLE_API_KEY   = "arn:aws:secretsmanager:us-east-1:590183739982:secret:rag/google-api-key-3yjq6A"
+          PINECONE_API_KEY = "arn:aws:secretsmanager:us-east-1:590183739982:secret:rag/pinecone-api-key-ufMUkQ"
+          PINECONE_HOST    = "arn:aws:secretsmanager:us-east-1:590183739982:secret:rag/pinecone-host-KHTHpU"
         }
         # --------------------------------------------------------
       }
