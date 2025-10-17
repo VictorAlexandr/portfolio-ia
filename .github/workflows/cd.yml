@@ -1,0 +1,39 @@
+name: CD - Deploy Infrastructure to AWS
+
+on:
+  workflow_dispatch: # Permite que a gente acione este workflow manualmente
+
+jobs:
+  deploy-infra:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # Necessário para autenticação segura com a AWS (OIDC)
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        id: init
+        # Usa -chdir para dizer ao Terraform para rodar dentro da nossa pasta de projeto
+        run: terraform -chdir=./engenharia-de-ia/Sistema\ de\ RAG\ em\ Larga\ Escala\ com\ Vector\ DB\ Gerenciado/terraform init
+
+      - name: Terraform Apply
+        id: apply
+        # Roda o apply, com -auto-approve para não pedir confirmação,
+        # e passa os segredos do GitHub como variáveis (-var) para o Terraform.
+        run: |
+          terraform -chdir=./engenharia-de-ia/Sistema\ de\ RAG\ em\ Larga\ Escala\ com\ Vector\ DB\ Gerenciado/terraform apply -auto-approve \
+          -var="google_api_key=${{ secrets.GOOGLE_API_KEY }}" \
+          -var="pinecone_api_key=${{ secrets.PINECONE_API_KEY }}" \
+          -var="pinecone_host=${{ secrets.PINECONE_HOST }}"
