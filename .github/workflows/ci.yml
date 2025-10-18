@@ -1,4 +1,4 @@
-name: CI - Build and Push Docker Image
+name: Deploy RAG API to AWS
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -22,6 +22,22 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform -chdir=./engenharia-de-ia/Sistema\ de\ RAG\ em\ Larga\ Escala\ com\ Vector\ DB\ Gerenciado/terraform init
+
+      - name: Terraform Apply (Create ECR and IAM)
+        id: tf_apply_1
+        run: |
+          # Tentamos aplicar tudo. Vai falhar no App Runner, mas criar o resto.
+          terraform -chdir=./engenharia-de-ia/Sistema\ de\ RAG\ em\ Larga\ Escala\ com\ Vector\ DB\ Gerenciado/terraform apply -auto-approve \
+            -var="google_api_key=${{ secrets.GOOGLE_API_KEY }}" \
+            -var="pinecone_api_key=${{ secrets.PINECONE_API_KEY }}" \
+            -var="pinecone_host=${{ secrets.PINECONE_HOST }}" \
+            || echo "Terraform apply failed as expected, but ECR/IAM should be created."
+      
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -36,3 +52,12 @@ jobs:
           cd "engenharia-de-ia/Sistema de RAG em Larga Escala com Vector DB Gerenciado"
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Terraform Apply (Create App Runner)
+        id: tf_apply_2
+        run: |
+          # Rodamos o apply de novo. Agora ele encontrará a imagem.
+          terraform -chdir=./engenharia-de-ia/Sistema\ de\ RAG\ em\ Larga\ Escala\ com\ Vector\ DB\ Gerenciado/terraform apply -auto-approve \
+            -var="google_api_key=${{ secrets.GOOGLE_API_KEY }}" \
+            -var="pinecone_api_key=${{ secrets.PINECONE_API_KEY }}" \
+            -var="pinecone_host=${{ secrets.PINECONE_HOST }}"
