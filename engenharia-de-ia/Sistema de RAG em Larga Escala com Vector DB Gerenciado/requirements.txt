@@ -1,24 +1,22 @@
-# Core LangChain - Versões conhecidas por serem compatíveis
+# Core LangChain
 langchain==0.1.20
-langchain-community==0.0.38
-langchain-core==0.1.52
-langchain-google-genai==0.1.0
-langchain-huggingface==0.0.3
-langchain-pinecone==0.1.0
-langchain-text-splitters==0.0.1
+langchain-community
+langchain-google-genai
+langchain-huggingface
+langchain-pinecone
+langchain-text-splitters
 
 # Pinecone
-pinecone-client==3.2.2
+pinecone-client
 
 # Outras dependências de IA
-sentence-transformers==2.7.0
-wikipedia==1.4.0
+sentence-transformers
+wikipedia
 tqdm
 
 # API e Servidor
-fastapi==0.110.0
-uvicorn[standard]==0.29.0
-pydantic <2
+fastapi
+uvicorn[standard]
 
 # Utilitários
 python-dotenv
