@@ -1,5 +1,3 @@
-# iam.tf
-
 # Define a política de confiança que permite ao App Runner assumir esta role
 data "aws_iam_policy_document" "apprunner_trust_policy" {
   statement {

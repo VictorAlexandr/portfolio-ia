@@ -1,4 +1,3 @@
-# apprunner.tf
 resource "aws_apprunner_service" "api_service" {
   service_name = var.app_runner_service_name
 
@@ -13,13 +12,11 @@ resource "aws_apprunner_service" "api_service" {
       image_configuration {
         port = "8000"
 
-        # --- MUDANÇA AQUI: Usa as variáveis recebidas do workflow ---
         runtime_environment_variables = {
           GOOGLE_API_KEY   = var.google_api_key
           PINECONE_API_KEY = var.pinecone_api_key
           PINECONE_HOST    = var.pinecone_host
         }
-        # -----------------------------------------------------------
       }
     }
     auto_deployments_enabled = true
