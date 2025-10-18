@@ -1,41 +1,23 @@
-# src/rag_pipeline.py
-
 import os
 import logging
 from dotenv import load_dotenv
 
-# Imports modernos e corretos
 from langchain_community.vectorstores import Pinecone
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-
-# Componentes do LangChain
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 load_dotenv()
 
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
 def create_rag_chain():
     try:
-        # --- LOGS DE DEPURAÇÃO PARA VERIFICAR AS VARIÁVEIS DE AMBIENTE ---
-        google_key = os.getenv("GOOGLE_API_KEY")
-        pinecone_key = os.getenv("PINECONE_API_KEY")
-        pinecone_host = os.getenv("PINECONE_HOST")
-
-        logging.info(f"--- CHECKING ENVIRONMENT VARIABLES ---")
-        logging.info(f"Google Key Loaded: {'Exists' if google_key else 'NOT FOUND'}")
-        logging.info(f"Pinecone Host Loaded: {'Exists' if pinecone_host else 'NOT FOUND'}")
-        
-        if pinecone_key:
-            logging.info(f"Pinecone Key Loaded: Starts with '{pinecone_key[:5]}', ends with '{pinecone_key[-5:]}'")
-        else:
-            logging.info(f"Pinecone Key Loaded: NOT FOUND")
-        logging.info(f"------------------------------------")
-        # -----------------------------------------------------------------
-
-        # Configurar o Retriever
-        logging.info("Carregando modelo de embedding via HuggingFaceEmbeddings...")
+        logging.info("Carregando modelo de embedding...")
         embeddings = HuggingFaceEmbeddings(
             model_name="all-MiniLM-L6-v2",
             model_kwargs={'device': 'cpu'}
@@ -52,7 +34,6 @@ def create_rag_chain():
         retriever = vector_store.as_retriever(search_kwargs={"k": 3})
         logging.info("Retriever configurado com sucesso.")
 
-        # Configurar o LLM (Gemini)
         logging.info("Configurando o LLM (Google Gemini)...")
         llm = ChatGoogleGenerativeAI(
             model="gemini-pro-latest",
@@ -60,33 +41,30 @@ def create_rag_chain():
             convert_system_message_to_human=True
         )
 
-        # Construir a Chain RAG
         prompt_template = """
-        Use os seguintes trechos de contexto para responder à pergunta no final.
-        Se você não sabe a resposta, apenas diga que não sabe, não tente inventar uma resposta.
-        Seja conciso e direto.
+        Use os seguintes trechos de contexto para responder à pergunta.
+        Se você não sabe a resposta, apenas diga que não sabe.
 
         Contexto: {context}
+
         Pergunta: {question}
-        Resposta útil:
+
+        Resposta:
         """
-        PROMPT = PromptTemplate(
-            template=prompt_template, input_variables=["context", "question"]
-        )
+        prompt = PromptTemplate.from_template(prompt_template)
+
+        logging.info("Construindo a RAG chain com LCEL...")
         
-        logging.info("Construindo a chain RetrievalQA...")
-        rag_chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=retriever,
-            chain_type_kwargs={"prompt": PROMPT},
-            return_source_documents=True
+        rag_chain = (
+            {"context": retriever | format_docs, "question": RunnablePassthrough()}
+            | prompt
+            | llm
+            | StrOutputParser()
         )
         
         logging.info("Pipeline RAG criada com sucesso!")
         return rag_chain
 
     except Exception as e:
-        # Adicionado exc_info=True para imprimir o traceback completo do erro no log
         logging.error(f"Erro ao criar a pipeline RAG: {e}", exc_info=True)
         return None
