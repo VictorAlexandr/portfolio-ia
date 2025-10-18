@@ -26,6 +26,9 @@ def create_rag_chain():
         index_name = "rag-large-scale"
         
         logging.info("Conectando ao Pinecone Vector Store...")
+        
+        # O construtor do LangChain usará as variáveis de ambiente PINECONE_API_KEY
+        # que são injetadas pelo App Runner
         vector_store = Pinecone.from_existing_index(
             index_name=index_name,
             embedding=embeddings
@@ -41,6 +44,7 @@ def create_rag_chain():
             convert_system_message_to_human=True
         )
 
+        # String do prompt completa
         prompt_template = """
         Use os seguintes trechos de contexto para responder à pergunta.
         Se você não sabe a resposta, apenas diga que não sabe.
