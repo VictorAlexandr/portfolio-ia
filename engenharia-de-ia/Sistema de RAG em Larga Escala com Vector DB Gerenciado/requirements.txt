@@ -1,22 +1,24 @@
-# Core LangChain
-langchain==0.1.20
-langchain-community
-langchain-google-genai
-langchain-huggingface
-langchain-pinecone
-langchain-text-splitters
+# Core LangChain - Versões estáveis compatíveis com Pydantic V1
+langchain==0.1.16
+langchain-community==0.0.34
+langchain-core==0.1.45
+langchain-google-genai==0.1.0
+langchain-huggingface==0.0.3
+langchain-pinecone==0.1.0
+langchain-text-splitters==0.0.1
+pydantic<2
 
 # Pinecone
-pinecone-client
+pinecone-client==3.1.0
 
 # Outras dependências de IA
-sentence-transformers
-wikipedia
+sentence-transformers==2.6.1
+wikipedia==1.4.0
 tqdm
 
 # API e Servidor
-fastapi
-uvicorn[standard]
+fastapi==0.109.2
+uvicorn[standard]==0.27.1
 
 # Utilitários
 python-dotenv
