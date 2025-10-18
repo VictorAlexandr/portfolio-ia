@@ -5,7 +5,7 @@ import logging
 from dotenv import load_dotenv
 
 # Imports modernos e corretos
-from langchain_pinecone import PineconeVectorStore
+from langchain_community.vectorstores import Pinecone
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -44,7 +44,7 @@ def create_rag_chain():
         index_name = "rag-large-scale"
         
         logging.info("Conectando ao Pinecone Vector Store...")
-        vector_store = PineconeVectorStore.from_existing_index(
+        vector_store = Pinecone.from_existing_index(
             index_name=index_name,
             embedding=embeddings
         )
